@@ -19,7 +19,11 @@
 <br><br>
 Messages by {{username}}:<br/>
 {{#messages}}
-{{id}}. {{text}} <a href="/delete-message?id={{id}}">Delete</a>
+{{id}}. {{text}} <form action="delete-message" method="post" style="display:inline;">
+    <input type="hidden" value="{{id}}" name="id"/>
+    <button type="submit">Delete</button>
+</form> <a href="/edit?id={{id}}">Edit</a>
+<br>
 {{/messages}}
 {{/username}}
 </body>

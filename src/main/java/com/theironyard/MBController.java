@@ -1,4 +1,5 @@
 package com.theironyard;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,15 +15,24 @@ import java.util.ArrayList;
 @Controller
 public class MBController {
 
-    ArrayList<Message> messages = new ArrayList<>();
+    @Autowired
+    MessageRepository messages;
+
 
     @RequestMapping("/")
     public String home(Model model, HttpServletRequest request){
         HttpSession session = request.getSession();
         String username = (String) session.getAttribute("username");
         model.addAttribute("username", username);
-        model.addAttribute("messages", messages);// Don't forget this!
+        model.addAttribute("messages", messages.findAll());// Don't forget this!
         return "home";
+    }
+
+    @RequestMapping("/edit")
+    public String edit(Model model, Integer id){
+        Message message = messages.findOne(id);
+        model.addAttribute("message", message);
+        return "edit";
     }
 
     @RequestMapping("/login")
@@ -34,21 +44,27 @@ public class MBController {
 
     @RequestMapping("/add-message")
     public String message(String text){
-        int id = messages.size()+1;
-        Message message = new Message(id, text);
-        messages.add(message);
+        Message message = new Message();
+        message.text=text;
+        messages.save(message);
         return "redirect:/";
     }
 
 
-
     @RequestMapping("/delete-message")
     public String delete(Integer id){
-        messages.remove(id-1);
-        for (int i=0; i< messages.size(); i++){
-            messages.get(i).id = i+1;
-        }
+        messages.delete(id);
         return ("redirect:/");
+    }
+
+    @RequestMapping("/edit-message")
+    public String editMessage(Integer id, String text){
+        Message message = messages.findOne(id);
+        if (message!=null){
+            message.text = text;
+        }
+        messages.save(message);
+        return "redirect:/";
     }
 
 }
